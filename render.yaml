@@ -2,7 +2,7 @@ services:
   - type: web
     name: mortality-analysis-dashboard
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn wsgi:application
+    startCommand: gunicorn app:server
     plan: free
     envVars:
       - key: PYTHON_VERSION

@@ -5,6 +5,7 @@ Contiene funciones de utilidad reutilizables en toda la aplicación.
 
 from dash import html, dcc
 
+
 def create_filter_card(title, filter_id, options, multi=True):
     """
     Crea un componente de tarjeta de filtro con un título y un dropdown.
@@ -13,16 +14,26 @@ def create_filter_card(title, filter_id, options, multi=True):
         title (str): Título del filtro que se mostrará en la tarjeta.
         filter_id (str): ID único para el componente dropdown.
         options (list): Lista de opciones disponibles para el dropdown.
+                        Puede ser una lista de valores simples o
+                        una lista de diccionarios con formato {'label': label, 'value': value}.
         multi (bool, optional): Indica si se permiten selecciones múltiples. Por defecto es True.
 
     Returns:
         html.Div: Componente de tarjeta de filtro con un dropdown.
     """
+    # Verifica si options ya es una lista de diccionarios con el formato correcto
+    dropdown_options = options
+    if options and not isinstance(options[0], dict):
+        dropdown_options = [{'label': opt, 'value': opt} for opt in options]
+    elif options and isinstance(options[0], dict) and not ('label' in options[0] and 'value' in options[0]):
+        # Si son diccionarios pero no tienen el formato correcto, intentamos convertirlos
+        dropdown_options = [{'label': opt.get('label', str(opt)), 'value': opt.get('value', opt)} for opt in options]
+
     return html.Div([
         html.H5(title, style={'marginBottom': '10px', 'fontWeight': 'bold', 'color': '#2c3e50', 'textAlign': 'center'}),
         dcc.Dropdown(
             id=filter_id,
-            options=[{'label': opt, 'value': opt} for opt in options],
+            options=dropdown_options,
             multi=multi,
             placeholder=f'Seleccionar {title.lower()}...',
             style={'width': '100%', 'zIndex': '9999'}

@@ -82,19 +82,31 @@ def process_data_for_monthly_deaths(df_mortality):
     return deaths_by_month
 
 
-def process_data_for_violent_cities(df_mortality, df_divipola):
+def process_data_for_violent_cities(df_mortality, df_divipola, df_codes=None, violent_types=None):
     """
     Procesa los datos para el gráfico de barras de las ciudades más violentas.
+    Considera homicidios (filtrados por MANERA_MUERTE="Homicidio" y relacionados con sus descripciones).
 
     Args:
         df_mortality (DataFrame): DataFrame con los datos de mortalidad.
         df_divipola (DataFrame): DataFrame con los datos de división política de Colombia.
+        df_codes (DataFrame, optional): DataFrame con los códigos de causas de muerte.
+        violent_types (list, optional): Lista de tipos de muertes violentas a incluir.
+                                       Si es None, incluye todos los tipos de homicidios.
 
     Returns:
         DataFrame: DataFrame con las 5 ciudades con más homicidios.
     """
-    # Filtrar homicidios con armas de fuego (código X95)
-    homicides = df_mortality[df_mortality['COD_MUERTE'].str.startswith('X95', na=False)]
+    # Crear una copia del DataFrame para no modificar el original
+    df = df_mortality.copy()
+
+    # Filtrar solo los registros donde MANERA_MUERTE es "Homicidio"
+    homicides = df[df['MANERA_MUERTE'] == 'Homicidio']
+
+    # Si se proporcionan tipos específicos de homicidios, filtrar por ellos
+    if violent_types and len(violent_types) > 0:
+        # Filtrar solo por los tipos seleccionados
+        homicides = homicides[homicides['COD_MUERTE'].isin(violent_types)]
 
     # Combinar con divipola para obtener nombres de ciudades
     homicides_with_city = homicides.merge(
@@ -207,6 +219,39 @@ def process_data_for_age_histogram(df_mortality):
     deaths_by_age = df.groupby('AGE_GROUP').size().reset_index(name='COUNT')
 
     return deaths_by_age
+
+
+def get_homicide_codes_with_descriptions(df_mortality, df_codes):
+    """
+    Obtiene los códigos de muerte por homicidio con sus descripciones.
+
+    Args:
+        df_mortality (DataFrame): DataFrame con los datos de mortalidad.
+        df_codes (DataFrame): DataFrame con los códigos de causas de muerte.
+
+    Returns:
+        dict: Diccionario con códigos de homicidio como claves y descripciones como valores.
+        list: Lista de tuplas (código, descripción) para usar en filtros.
+    """
+    # Filtrar solo los registros donde MANERA_MUERTE es "Homicidio"
+    homicides = df_mortality[df_mortality['MANERA_MUERTE'] == 'Homicidio']
+
+    # Obtener códigos únicos de homicidio
+    unique_homicide_codes = homicides['COD_MUERTE'].unique()
+
+    # Relacionar códigos con descripciones
+    homicide_codes_with_desc = df_codes[df_codes['Código de la CIE-10 cuatro caracteres'].isin(unique_homicide_codes)]
+
+    # Crear diccionario de código -> descripción
+    code_to_desc = dict(zip(
+        homicide_codes_with_desc['Código de la CIE-10 cuatro caracteres'],
+        homicide_codes_with_desc['Descripcion  de códigos mortalidad a cuatro caracteres']
+    ))
+
+    # Crear lista de tuplas (código, descripción) para usar en filtros
+    code_desc_list = [{'label': f"{code} - {desc}", 'value': code} for code, desc in code_to_desc.items()]
+
+    return code_desc_list
 
 
 def process_data_for_gender_department(df_mortality, df_divipola):

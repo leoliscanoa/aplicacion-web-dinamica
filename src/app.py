@@ -10,7 +10,7 @@ from src.callbacks.callbacks import register_callbacks
 # Importar módulos de la aplicación
 from src.data_processing.data_loader import load_data, process_data_for_department_map, process_data_for_monthly_deaths, \
     process_data_for_age_histogram, process_data_for_violent_cities, process_data_for_lowest_mortality_cities, \
-    process_data_for_top_causes, process_data_for_gender_department
+    process_data_for_top_causes, process_data_for_gender_department, get_homicide_codes_with_descriptions
 from src.layouts.layout import create_layout
 from src.utils.utils import MONTH_NAMES
 from src.visualizations.charts import create_department_map, create_monthly_deaths_chart, create_age_histogram, \
@@ -27,7 +27,7 @@ df_mortality, df_codes, df_divipola = load_data()
 deaths_by_dept = process_data_for_department_map(df_mortality, df_divipola)
 deaths_by_month = process_data_for_monthly_deaths(df_mortality)
 deaths_by_age = process_data_for_age_histogram(df_mortality)
-top_violent_cities = process_data_for_violent_cities(df_mortality, df_divipola)
+top_violent_cities = process_data_for_violent_cities(df_mortality, df_divipola, df_codes)
 lowest_mortality_cities = process_data_for_lowest_mortality_cities(df_mortality, df_divipola)
 top_causes = process_data_for_top_causes(df_mortality, df_codes)
 deaths_by_dept_gender = process_data_for_gender_department(df_mortality, df_divipola)
@@ -86,6 +86,9 @@ months = [month for _, month in sorted([(k, v) for k, v in MONTH_NAMES.items()],
 gender_mapping = {1: 'Masculino', 2: 'Femenino', 3: 'Indeterminado'}
 genders = list(gender_mapping.values())
 
+# Obtener códigos de homicidio con sus descripciones
+homicide_code_desc_list = get_homicide_codes_with_descriptions(df_mortality, df_codes)
+
 # Configurar el layout de la aplicación
 app.layout = create_layout(
     map_fig, 
@@ -98,11 +101,12 @@ app.layout = create_layout(
     departments, 
     manners_of_death, 
     months, 
-    genders
+    genders,
+    homicide_code_desc_list
 )
 
 # Registrar callbacks
-register_callbacks(app, df_mortality, df_divipola, gender_mapping)
+register_callbacks(app, df_mortality, df_divipola, gender_mapping, df_codes)
 
 # Ejecutar la aplicación
 if __name__ == '__main__':

@@ -48,7 +48,11 @@ def create_map_section(map_fig, manners_of_death, months, genders):
 
             # Mapa primero
             html.Div([
-                dcc.Graph(id='map-graph', figure=map_fig, style={'height': '700px'})
+                dcc.Loading(
+                    id="loading-map",
+                    type="circle",
+                    children=dcc.Graph(id='map-graph', figure=map_fig, style={'height': '700px'})
+                )
             ]),
 
             # Filtros abajo
@@ -88,7 +92,11 @@ def create_monthly_deaths_section(monthly_deaths_fig, departments, genders):
     """
     return html.Div([
         html.Div([
-            dcc.Graph(id='monthly-deaths-graph', figure=monthly_deaths_fig)
+            dcc.Loading(
+                id="loading-monthly-deaths",
+                type="circle",
+                children=dcc.Graph(id='monthly-deaths-graph', figure=monthly_deaths_fig)
+            )
         ]),
         html.Div([
             html.H5('Filtros', style={'marginTop': '10px', 'fontWeight': 'bold', 'color': '#2c3e50', 'textAlign': 'center'}),
@@ -113,7 +121,11 @@ def create_age_histogram_section(age_histogram_fig, departments, genders):
     """
     return html.Div([
         html.Div([
-            dcc.Graph(id='age-histogram', figure=age_histogram_fig)
+            dcc.Loading(
+                id="loading-age-histogram",
+                type="circle",
+                children=dcc.Graph(id='age-histogram', figure=age_histogram_fig)
+            )
         ]),
         html.Div([
             html.H5('Filtros', style={'marginTop': '10px', 'fontWeight': 'bold', 'color': '#2c3e50', 'textAlign': 'center'}),
@@ -136,16 +148,20 @@ def create_top_causes_section(top_causes_table):
     """
     return html.Div([
         html.H3("Principales Causas de Muerte", style={**title_style, 'marginBottom': '15px'}),
-        top_causes_table
+        dcc.Loading(
+            id="loading-top-causes",
+            type="circle",
+            children=top_causes_table
+        )
     ], style=card_style)
 
-def create_violent_cities_section(violent_cities_fig, departments, genders):
+def create_violent_cities_section(violent_cities_fig, violent_types, genders):
     """
     Crea la sección de ciudades más violentas con filtros.
 
     Args:
         violent_cities_fig (plotly.graph_objects.Figure): Figura del gráfico de ciudades más violentas.
-        departments (list): Lista de departamentos para el filtro.
+        violent_types (list): Lista de tipos de muertes violentas para el filtro.
         genders (list): Lista de géneros para el filtro.
 
     Returns:
@@ -153,12 +169,16 @@ def create_violent_cities_section(violent_cities_fig, departments, genders):
     """
     return html.Div([
         html.Div([
-            dcc.Graph(id='violent-cities-graph', figure=violent_cities_fig)
+            dcc.Loading(
+                id="loading-violent-cities",
+                type="circle",
+                children=dcc.Graph(id='violent-cities-graph', figure=violent_cities_fig)
+            )
         ]),
         html.Div([
             html.H5('Filtros', style={'marginTop': '10px', 'fontWeight': 'bold', 'color': '#2c3e50', 'textAlign': 'center'}),
             html.Div([
-                create_filter_card("Departamento", 'violent-dept-filter', departments),
+                create_filter_card("Descripción de Homicidio", 'violent-manner-filter', violent_types),
                 create_filter_card("Género", 'violent-gender-filter', genders)
             ], style={'display': 'flex', 'gap': '10px', 'justifyContent': 'space-between'}),
         ], style=filter_area_style)
@@ -177,7 +197,11 @@ def create_lowest_mortality_section(lowest_mortality_fig, genders):
     """
     return html.Div([
         html.Div([
-            dcc.Graph(id='lowest-mortality-graph', figure=lowest_mortality_fig)
+            dcc.Loading(
+                id="loading-lowest-mortality",
+                type="circle",
+                children=dcc.Graph(id='lowest-mortality-graph', figure=lowest_mortality_fig)
+            )
         ]),
         html.Div([
             html.H5('Filtros', style={'marginTop': '10px', 'fontWeight': 'bold', 'color': '#2c3e50', 'textAlign': 'center'}),
@@ -199,7 +223,11 @@ def create_gender_dept_section(gender_dept_fig, manners_of_death, months):
     """
     return html.Div([
         html.Div([
-            dcc.Graph(id='gender-dept-graph', figure=gender_dept_fig)
+            dcc.Loading(
+                id="loading-gender-dept",
+                type="circle",
+                children=dcc.Graph(id='gender-dept-graph', figure=gender_dept_fig)
+            )
         ]),
         html.Div([
             html.H5('Filtros', style={'marginTop': '10px', 'fontWeight': 'bold', 'color': '#2c3e50', 'textAlign': 'center'}),
@@ -262,7 +290,7 @@ def create_data_sources_section():
 
 def create_layout(map_fig, monthly_deaths_fig, age_histogram_fig, top_causes_table, 
                  violent_cities_fig, lowest_mortality_fig, gender_dept_fig,
-                 departments, manners_of_death, months, genders):
+                 departments, manners_of_death, months, genders, violent_types=None):
     """
     Crea el layout completo de la aplicación.
 
@@ -278,6 +306,7 @@ def create_layout(map_fig, monthly_deaths_fig, age_histogram_fig, top_causes_tab
         manners_of_death (list): Lista de maneras de muerte para los filtros.
         months (list): Lista de meses para los filtros.
         genders (list): Lista de géneros para los filtros.
+        violent_types (list, optional): Lista de tipos de muertes violentas para el filtro de ciudades más violentas.
 
     Returns:
         html.Div: Layout completo de la aplicación.
@@ -307,7 +336,7 @@ def create_layout(map_fig, monthly_deaths_fig, age_histogram_fig, top_causes_tab
             # Columna derecha
             html.Div([
                 # Panel de ciudades más violentas con filtros
-                create_violent_cities_section(violent_cities_fig, departments, genders),
+                create_violent_cities_section(violent_cities_fig, violent_types, genders),
 
                 # Panel de ciudades con menor mortalidad con filtros
                 create_lowest_mortality_section(lowest_mortality_fig, genders),

@@ -8,7 +8,7 @@ from src.data_processing.data_loader import process_data_for_department_map, pro
 from src.visualizations.charts import create_department_map, create_monthly_deaths_chart, create_age_histogram, create_violent_cities_chart, create_lowest_mortality_chart, create_gender_department_chart
 from src.utils.utils import MONTH_NAMES
 
-def register_callbacks(app, df_mortality, df_divipola, gender_mapping):
+def register_callbacks(app, df_mortality, df_divipola, gender_mapping, df_codes=None):
     """
     Registra todos los callbacks de la aplicación.
 
@@ -157,15 +157,15 @@ def register_callbacks(app, df_mortality, df_divipola, gender_mapping):
     # --- Callback para Ciudades más Violentas ---
     @app.callback(
         Output('violent-cities-graph', 'figure'),
-        [Input('violent-dept-filter', 'value'),
+        [Input('violent-manner-filter', 'value'),
          Input('violent-gender-filter', 'value')]
     )
-    def update_violent_cities_chart(selected_depts, selected_genders):
+    def update_violent_cities_chart(selected_violent_types, selected_genders):
         """
         Actualiza el gráfico de ciudades más violentas según los filtros seleccionados.
 
         Args:
-            selected_depts (list): Lista de departamentos seleccionados.
+            selected_violent_types (list): Lista de descripciones de tipos de homicidios seleccionados.
             selected_genders (list): Lista de géneros seleccionados.
 
         Returns:
@@ -174,24 +174,22 @@ def register_callbacks(app, df_mortality, df_divipola, gender_mapping):
         # Crear una copia del DataFrame original
         filtered_df = df_mortality.copy()
 
-        # Combinar con divipola para obtener nombres de departamentos
-        if selected_depts and len(selected_depts) > 0:
-            # Primero añadir la columna DEPARTAMENTO
-            filtered_df = filtered_df.merge(
-                df_divipola[['COD_DANE', 'COD_DEPARTAMENTO', 'DEPARTAMENTO']],
-                on='COD_DANE',
-                how='left'
-            )
-            # Luego filtrar por departamento
-            filtered_df = filtered_df[filtered_df['DEPARTAMENTO'].isin(selected_depts)]
-
+        # Aplicar filtro de género si se ha seleccionado
         if selected_genders and len(selected_genders) > 0:
             gender_to_code = {v: k for k, v in gender_mapping.items()}
             selected_gender_codes = [gender_to_code[gender] for gender in selected_genders]
             filtered_df = filtered_df[filtered_df['SEXO'].isin(selected_gender_codes)]
 
-        # Procesar datos filtrados
-        filtered_violent_cities = process_data_for_violent_cities(filtered_df, df_divipola)
+        # Extraer los códigos de muerte de las descripciones seleccionadas
+        selected_codes = []
+        if selected_violent_types and len(selected_violent_types) > 0:
+            for desc in selected_violent_types:
+                # Extraer el código de la descripción (formato: "X994 - Descripción")
+                code = desc.split(' - ')[0]
+                selected_codes.append(code)
+
+        # Procesar datos filtrados, pasando los códigos de homicidios seleccionados
+        filtered_violent_cities = process_data_for_violent_cities(filtered_df, df_divipola, df_codes, selected_codes)
 
         # Crear visualización actualizada
         updated_violent_cities_fig = create_violent_cities_chart(filtered_violent_cities)

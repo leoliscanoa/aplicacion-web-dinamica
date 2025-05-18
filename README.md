@@ -179,10 +179,35 @@ Este repositorio está licenciado bajo [Creative Commons Attribution-NonCommerci
 
 Ver el archivo [LICENSE.txt](LICENSE.txt) para más detalles.
 
-## Autores
-- Bechara, Hermes (hacordoba77@unisalle.edu.co)
-- Liscano, Andrés (aliscano20@unisalle.edu.co)
-- Montealegre, Efrain (emontealegre19@unisalle.edu.co)
+## Colaboradores
+
+<table>
+  <tr>
+    <td align="center">
+      <a href="https://github.com/Hbechara-dev">
+        <img src="https://github.com/Hbechara-dev.png" width="100px;" alt="Hermes Bechara"/><br>
+        <sub><b>Hermes Bechara</b></sub>
+      </a><br>
+      <sub>hacordoba77@unisalle.edu.co</sub>
+    </td>
+    <td align="center">
+      <a href="https://github.com/leoliscanoa">
+        <img src="https://github.com/leoliscanoa.png" width="100px;" alt="Andrés Liscano"/><br>
+        <sub><b>Andrés Liscano</b></sub>
+      </a><br>
+      <sub>aliscano20@unisalle.edu.co</sub>
+    </td>
+    <td align="center">
+      <a href="https://github.com/EfraMonR">
+        <img src="https://github.com/EfraMonR.png" width="100px;" alt="Efrain Montealegre"/><br>
+        <sub><b>Efrain Montealegre</b></sub>
+      </a><br>
+      <sub>emontealegre19@unisalle.edu.co)</sub>
+    </td>
+  </tr>
+</table>
+
+Para conocer más sobre cómo contribuir a este proyecto, consulta nuestro [archivo de contribución](CONTRIBUTING.md).
 
 ## Referencias
 - Dash. (s.f.). Dash Documentation. Recuperado el 17 de mayo de 2025, de https://dash.plotly.com/
